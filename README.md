@@ -5,6 +5,13 @@ Stock trading systems involve processing orders placed by traders for different 
 Furthermore, traders can delete or edit their existing un-executed orders that are sitting in the orderbook. An order consists of the symbol of the stock, quantity of the stocks and the price the trader intends to buy or sell and the order type to indicate if it’s a buy order or a sell order.
 Stock trading systems are expected to be highly available and scalable. Also, accuracy is critical for stock trading systems as it deals with money. In this assignment you are expected to design and build mini trading systems.
 
+Technologies
+  1.Java
+  2.Apache Maven
+  3.Apache Zookeeper
+  4.etcd
+  5.gRPC
+
 
 
 

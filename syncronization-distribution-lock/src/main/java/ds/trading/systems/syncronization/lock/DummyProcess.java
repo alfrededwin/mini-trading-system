@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.Random;
 
 public class DummyProcess {
-
     public static final String ZOOKEEPER_URL = "127.0.0.1:2181";
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
     public static void main(String[] args) {
         DistributedLock.setZooKeeperURL(ZOOKEEPER_URL);
         try {
@@ -37,6 +37,4 @@ public class DummyProcess {
     private static String getCurrentTimeStamp() {
         return timeFormat.format(new Date(System.currentTimeMillis()));
     }
-
-
 }

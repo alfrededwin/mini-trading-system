@@ -1,4 +1,4 @@
-package ds.trading.system.server;
-
-public class BuyOrderServiceImpl {
-}
+//package ds.trading.system.server;
+//
+//public class BuyOrderServiceImpl {
+//}

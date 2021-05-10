@@ -1,18 +1,24 @@
 syntax = "proto3";
 option java_multiple_files = true;
-//package ds.tutorial.communication.grpc.generated;
-
 package ds.trading.system.grpc.generated;
 
-message SellOrderRequest {
-  string orderId = 1;
+message StockOrderRequest {
+  string traderId = 1;
+  string orderSymbol = 2;
+  double stockPrice = 100;
+  int32 stockQuantity = 10;
+  string orderType = 3;
+  bool isSentByPrimary = 4;
+}
+message StockOrderResponse {
+  string traderId = 1;
+  string orderSymbol = 2;
+  double stockPrice = 100;
+  int32 stockQuantity = 10;
+  string orderType = 3;
+  bool orderStatus = 4;
+}
+service StockOrderService {
+  rpc stockOrder(StockOrderRequest) returns (StockOrderResponse);
 }
 
-message SellOrderResponse {
-  int32 quantity = 1;
-  double price = 2;
-}
-
-service SellOrderService {
-  rpc sellOrder(SellOrderRequest) returns (SellOrderResponse);
-}

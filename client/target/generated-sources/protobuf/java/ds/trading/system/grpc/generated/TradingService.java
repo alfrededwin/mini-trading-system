@@ -15,15 +15,15 @@ public final class TradingService {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ds_trading_system_grpc_generated_SellOrderRequest_descriptor;
+    internal_static_ds_trading_system_grpc_generated_StockOrderRequest_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ds_trading_system_grpc_generated_SellOrderRequest_fieldAccessorTable;
+      internal_static_ds_trading_system_grpc_generated_StockOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_ds_trading_system_grpc_generated_SellOrderResponse_descriptor;
+    internal_static_ds_trading_system_grpc_generated_StockOrderResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_ds_trading_system_grpc_generated_SellOrderResponse_fieldAccessorTable;
+      internal_static_ds_trading_system_grpc_generated_StockOrderResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -34,30 +34,35 @@ public final class TradingService {
   static {
     java.lang.String[] descriptorData = {
       "\n\024TradingService.proto\022 ds.trading.syste" +
-      "m.grpc.generated\"#\n\020SellOrderRequest\022\017\n\007" +
-      "orderId\030\001 \001(\t\"4\n\021SellOrderResponse\022\020\n\010qu" +
-      "antity\030\001 \001(\005\022\r\n\005price\030\002 \001(\0012\210\001\n\020SellOrde" +
-      "rService\022t\n\tsellOrder\0222.ds.trading.syste" +
-      "m.grpc.generated.SellOrderRequest\0323.ds.t" +
-      "rading.system.grpc.generated.SellOrderRe" +
-      "sponseB\002P\001b\006proto3"
+      "m.grpc.generated\"\221\001\n\021StockOrderRequest\022\020" +
+      "\n\010traderId\030\001 \001(\t\022\023\n\013orderSymbol\030\002 \001(\t\022\022\n" +
+      "\nstockPrice\030d \001(\001\022\025\n\rstockQuantity\030\n \001(\005" +
+      "\022\021\n\torderType\030\003 \001(\t\022\027\n\017isSentByPrimary\030\004" +
+      " \001(\010\"\216\001\n\022StockOrderResponse\022\020\n\010traderId\030" +
+      "\001 \001(\t\022\023\n\013orderSymbol\030\002 \001(\t\022\022\n\nstockPrice" +
+      "\030d \001(\001\022\025\n\rstockQuantity\030\n \001(\005\022\021\n\torderTy" +
+      "pe\030\003 \001(\t\022\023\n\013orderStatus\030\004 \001(\0102\214\001\n\021StockO" +
+      "rderService\022w\n\nstockOrder\0223.ds.trading.s" +
+      "ystem.grpc.generated.StockOrderRequest\0324" +
+      ".ds.trading.system.grpc.generated.StockO" +
+      "rderResponseB\002P\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_ds_trading_system_grpc_generated_SellOrderRequest_descriptor =
+    internal_static_ds_trading_system_grpc_generated_StockOrderRequest_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_ds_trading_system_grpc_generated_SellOrderRequest_fieldAccessorTable = new
+    internal_static_ds_trading_system_grpc_generated_StockOrderRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ds_trading_system_grpc_generated_SellOrderRequest_descriptor,
-        new java.lang.String[] { "OrderId", });
-    internal_static_ds_trading_system_grpc_generated_SellOrderResponse_descriptor =
+        internal_static_ds_trading_system_grpc_generated_StockOrderRequest_descriptor,
+        new java.lang.String[] { "TraderId", "OrderSymbol", "StockPrice", "StockQuantity", "OrderType", "IsSentByPrimary", });
+    internal_static_ds_trading_system_grpc_generated_StockOrderResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_ds_trading_system_grpc_generated_SellOrderResponse_fieldAccessorTable = new
+    internal_static_ds_trading_system_grpc_generated_StockOrderResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_ds_trading_system_grpc_generated_SellOrderResponse_descriptor,
-        new java.lang.String[] { "Quantity", "Price", });
+        internal_static_ds_trading_system_grpc_generated_StockOrderResponse_descriptor,
+        new java.lang.String[] { "TraderId", "OrderSymbol", "StockPrice", "StockQuantity", "OrderType", "OrderStatus", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

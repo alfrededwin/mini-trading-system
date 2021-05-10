@@ -20,7 +20,7 @@ public class TradingServer {
 
     public TradingServer(String host, int port) throws InterruptedException, IOException, KeeperException {
         this.serverPort = port;
-        leaderLock = new DistributedLock("TradeServerTestCluster", buildServerData(host, port));
+        leaderLock = new DistributedLock("Trading Server Test Cluster", buildServerData(host, port));
     }
 
     public boolean isLeader() {
@@ -42,7 +42,7 @@ public class TradingServer {
                 .addService(new OrderServiceImpl(this))
                 .build();
         server.start();
-        System.out.println("TradeServer Started and ready to accept requests on port " + serverPort);
+        System.out.println("Trading Server Started and ready to accept requests on port " + serverPort);
 
         tryToBeLeader();
         server.awaitTermination();

@@ -64,7 +64,7 @@ public class TradingServer {
     }
 
     private void BuyOrderTransaction(StockDetails stock) {
-        System.out.println("Performing bUY order request, checking stock Order book");
+        System.out.println("Performing Buy Order request, checking stock Order book");
         orderBook.add(stock);
         boolean transactionPerformed = false;
 
@@ -81,9 +81,15 @@ public class TradingServer {
                     transactionPerformed = true;
                     System.out.println("Buy order transaction complete");
                     break;
-                }
+                    }
                  }
             }
+
+        if (!transactionPerformed) {
+            System.out.println("Currently there are no matching buy orders");
+        }
+
+
     }
 
     public void SellOrderTransaction(StockDetails stock) {

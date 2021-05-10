@@ -15,11 +15,12 @@ public class TradingServer {
     private DistributedLock leaderLock;
     private AtomicBoolean isLeader = new AtomicBoolean(false);
     private byte[] leaderData;
+    //    private Map<String, Stock> orderBook = new HashMap();
     private ArrayList<StockDetails> orderBook = new ArrayList<>();
 
     public TradingServer(String host, int port) throws InterruptedException, IOException, KeeperException {
         this.serverPort = port;
-        leaderLock = new DistributedLock("Trading Server Test Cluster", buildServerData(host, port));
+        leaderLock = new DistributedLock("TradeServerTestCluster", buildServerData(host, port));
     }
 
     public boolean isLeader() {
@@ -41,7 +42,7 @@ public class TradingServer {
                 .addService(new OrderServiceImpl(this))
                 .build();
         server.start();
-        System.out.println("Trading Server Started and ready to accept requests on port " + serverPort);
+        System.out.println("TradeServer Started and ready to accept requests on port " + serverPort);
 
         tryToBeLeader();
         server.awaitTermination();
@@ -57,48 +58,19 @@ public class TradingServer {
         StockDetails stock = new StockDetails(traderId, quantity, price, orderType);
 
         if (orderType.equals("sell")) {
-            SellOrderTransaction(stock);
+            performSellOrderTransaction(stock);
         } else {
-            BuyOrderTransaction(stock);
+            performBuyOrderTransaction(stock);
         }
     }
 
-    private void BuyOrderTransaction(StockDetails stock) {
-        System.out.println("Performing Buy Order request, checking stock Order book");
-        orderBook.add(stock);
-        boolean transactionPerformed = false;
-
-        for (StockDetails orderItem: this.orderBook) {
-            if (orderItem.getOrderType().equals(StockDetails.BUY_ORDER_TYPE)) {
-                if (orderItem.getPrice() == stock.getPrice()
-                        && orderItem.getQuantity() == stock.getQuantity()
-                        && !orderItem.getTraderId().equals(stock.getTraderId())) {
-                    System.out.println("Stock order match found. Perform transaction");
-                    System.out.println("Seller details: Trader ID-" + stock.getTraderId());
-                    System.out.println("Buyer details: Trader ID-" + orderItem.getTraderId());
-
-                    orderBook.remove(orderItem);
-                    transactionPerformed = true;
-                    System.out.println("Buy order transaction complete");
-                    break;
-                    }
-                 }
-            }
-
-        if (!transactionPerformed) {
-            System.out.println("Currently there are no matching buy orders");
-        }
-
-
-    }
-
-    public void SellOrderTransaction(StockDetails stock) {
+    public void performSellOrderTransaction(StockDetails stock) {
         System.out.println("Performing sell order request, checking stock Order book");
         orderBook.add(stock);
         boolean transactionPerformed = false;
 
         for (StockDetails orderItem: this.orderBook) {
-            if (orderItem.getOrderType().equals(StockDetails.BUY_ORDER_TYPE)) {
+            if (orderItem.getOrderType().equals(StockDetails.BUY_ORDER_TYPE)) { // check if someone is ready to sell
                 // check for only sell orders
                 if (orderItem.getPrice() == stock.getPrice()
                         && orderItem.getQuantity() == stock.getQuantity()
@@ -120,6 +92,40 @@ public class TradingServer {
         }
     }
 
+    private void performBuyOrderTransaction(StockDetails stock) {
+        System.out.println("Performing buy order request, checking stock Order book");
+        orderBook.add(stock);
+
+        boolean transactionPerformed = false;
+
+        for (StockDetails orderItem: this.orderBook) {
+            if (orderItem.getOrderType().equals(StockDetails.SELL_ORDER_TYPE)) { // check if someone is ready to sell
+
+                System.out.println("== buy order ==");
+
+                System.out.println(stock.getTraderId()+"-"+stock.getQuantity()+"-"+stock.getPrice()+"-"+stock.getOrderType());
+                System.out.println(orderItem.getTraderId()+"-"+orderItem.getQuantity()+"-"+orderItem.getPrice()+"-"+orderItem.getOrderType());
+
+                // check for only buy orders
+                if (orderItem.getPrice() == stock.getPrice()
+                        && orderItem.getQuantity() == stock.getQuantity()
+                        && !orderItem.getTraderId().equals(stock.getTraderId())) {
+                    System.out.println("Stock order match found. Perform transaction");
+                    System.out.println("Buyer details: Trader ID-" + stock.getTraderId());
+                    System.out.println("Seller details: Trader ID-" + orderItem.getTraderId());
+
+                    orderBook.remove(orderItem);
+                    transactionPerformed = true;
+                    System.out.println("Buy order transaction complete");
+                    break;
+                }
+            }
+        }
+
+        if (!transactionPerformed) {
+            System.out.println("Currently there are no matching sell orders");
+        }
+    }
 
     public synchronized String[] getCurrentLeaderData() {
         return new String(leaderData).split(":");

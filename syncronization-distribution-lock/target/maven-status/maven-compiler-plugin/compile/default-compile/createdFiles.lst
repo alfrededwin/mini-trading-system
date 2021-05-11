@@ -1,3 +1,7 @@
+ds/trading/systems/syncronization/lock/tx/DistributedTxListener.class
+ds/trading/systems/syncronization/lock/tx/DistributedTxParticipant.class
+ds/trading/systems/syncronization/lock/DummyProcess.class
 ds/trading/systems/syncronization/lock/ZooKeeperClient.class
 ds/trading/systems/syncronization/lock/DistributedLock.class
-ds/trading/systems/syncronization/lock/DummyProcess.class
+ds/trading/systems/syncronization/lock/tx/DistributedTxCoordinator.class
+ds/trading/systems/syncronization/lock/tx/DistributedTx.class

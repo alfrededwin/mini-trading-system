@@ -58,50 +58,53 @@ public class TradingServer {
         StockDetails stock = new StockDetails(traderId, quantity, price, orderType);
 
         if (orderType.equals("sell")) {
-            performSellOrderTransaction(stock);
+            SellOrderTransaction(stock);
         } else {
-            performBuyOrderTransaction(stock);
+            BuyOrderTransaction(stock);
         }
     }
 
-    public void performSellOrderTransaction(StockDetails stock) {
-        System.out.println("Performing sell order request, checking stock Order book");
+    public void SellOrderTransaction(StockDetails stock) {
+        System.out.println("Sell Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
         boolean transactionPerformed = false;
 
         for (StockDetails orderItem: this.orderBook) {
-            if (orderItem.getOrderType().equals(StockDetails.BUY_ORDER_TYPE)) { // check if someone is ready to sell
-                // check for only sell orders
+            // Checking whether any traders are ready to sell
+            if (orderItem.getOrderType().equals(StockDetails.BUY_ORDER_TYPE)) {
                 if (orderItem.getPrice() == stock.getPrice()
                         && orderItem.getQuantity() == stock.getQuantity()
                         && !orderItem.getTraderId().equals(stock.getTraderId())) {
-                    System.out.println("Stock order match found. Perform transaction");
-                    System.out.println("Seller details: Trader ID-" + stock.getTraderId());
-                    System.out.println("Buyer details: Trader ID-" + orderItem.getTraderId());
+                    System.out.println("------------------------------------------------------");
+                    System.out.println("Match Found. Orders are Executed and Trade takes Place");
+                    System.out.println("Seller Id : " + stock.getTraderId());
+                    System.out.println("Buyer  Id :" + orderItem.getTraderId());
 
                     orderBook.remove(orderItem);
                     transactionPerformed = true;
-                    System.out.println("Sell order transaction complete");
+                    System.out.println("Transaction Completed for Sell Order");
+                    System.out.println("------------------------------------------------------");
                     break;
                 }
             }
         }
 
         if (!transactionPerformed) {
-            System.out.println("Currently there are no matching buy orders");
+            System.out.println("No Match for Buy Orders");
         }
     }
 
-    private void performBuyOrderTransaction(StockDetails stock) {
-        System.out.println("Performing buy order request, checking stock Order book");
+    private void BuyOrderTransaction(StockDetails stock) {
+        System.out.println("Buy Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
 
         boolean transactionPerformed = false;
 
         for (StockDetails orderItem: this.orderBook) {
-            if (orderItem.getOrderType().equals(StockDetails.SELL_ORDER_TYPE)) { // check if someone is ready to sell
+            // Checking whether any traders are ready to buy
+            if (orderItem.getOrderType().equals(StockDetails.SELL_ORDER_TYPE)) {
 
-                System.out.println("== buy order ==");
+                System.out.println("---------------------Buy Order------------------------");
 
                 System.out.println(stock.getTraderId()+"-"+stock.getQuantity()+"-"+stock.getPrice()+"-"+stock.getOrderType());
                 System.out.println(orderItem.getTraderId()+"-"+orderItem.getQuantity()+"-"+orderItem.getPrice()+"-"+orderItem.getOrderType());
@@ -110,20 +113,22 @@ public class TradingServer {
                 if (orderItem.getPrice() == stock.getPrice()
                         && orderItem.getQuantity() == stock.getQuantity()
                         && !orderItem.getTraderId().equals(stock.getTraderId())) {
-                    System.out.println("Stock order match found. Perform transaction");
-                    System.out.println("Buyer details: Trader ID-" + stock.getTraderId());
-                    System.out.println("Seller details: Trader ID-" + orderItem.getTraderId());
+                    System.out.println("------------------------------------------------------");
+                    System.out.println("Match Found. Orders are Executed and Trade takes Place");
+                    System.out.println("Buyer Id :" + stock.getTraderId());
+                    System.out.println("Seller Id :" + orderItem.getTraderId());
 
                     orderBook.remove(orderItem);
                     transactionPerformed = true;
-                    System.out.println("Buy order transaction complete");
+                    System.out.println("Transaction Completed for Buy Order");
+                    System.out.println("------------------------------------------------------");
                     break;
                 }
             }
         }
 
         if (!transactionPerformed) {
-            System.out.println("Currently there are no matching sell orders");
+            System.out.println("No Match for Sell Orders");
         }
     }
 

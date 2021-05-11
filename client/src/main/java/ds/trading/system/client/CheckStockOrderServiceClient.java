@@ -42,7 +42,7 @@ public class CheckStockOrderServiceClient {
             double price = Double.parseDouble(input[2]);
             String orderType = input[3];
 
-            System.out.println("Requesting server perform stock order");
+            System.out.println("Requesting server to place a Stock Order");
             StockOrderRequest request = StockOrderRequest
                     .newBuilder()
                     .setTraderId(traderId)
@@ -52,7 +52,7 @@ public class CheckStockOrderServiceClient {
                     .build();
 
             StockOrderResponse response = clientStub.stockOrder(request);
-            System.out.printf("Trade order processed for " + response.getTraderId() + " request");
+            System.out.printf("Trading Order Processed for " + response.getTraderId() + " request");
             Thread.sleep(1000);
         }
     }

@@ -65,6 +65,7 @@ public class TradingServer {
     }
 
     public void SellOrderTransaction(StockDetails stock) {
+        System.out.println("----------------------------------------------------");
         System.out.println("Sell Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
         boolean transactionPerformed = false;
@@ -75,7 +76,7 @@ public class TradingServer {
                 if (orderItem.getPrice() == stock.getPrice()
                         && orderItem.getQuantity() == stock.getQuantity()
                         && !orderItem.getTraderId().equals(stock.getTraderId())) {
-                    System.out.println("------------------------------------------------------");
+
                     System.out.println("Match Found. Orders are Executed and Trade takes Place");
                     System.out.println("Seller Id : " + stock.getTraderId());
                     System.out.println("Buyer  Id :" + orderItem.getTraderId());
@@ -95,6 +96,7 @@ public class TradingServer {
     }
 
     private void BuyOrderTransaction(StockDetails stock) {
+        System.out.println("----------------------------------------------------");
         System.out.println("Buy Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
 
@@ -104,10 +106,9 @@ public class TradingServer {
             // Checking whether any traders are ready to buy
             if (orderItem.getOrderType().equals(StockDetails.SELL_ORDER_TYPE)) {
 
-                System.out.println("---------------------Buy Order------------------------");
-
-                System.out.println(stock.getTraderId()+"-"+stock.getQuantity()+"-"+stock.getPrice()+"-"+stock.getOrderType());
-                System.out.println(orderItem.getTraderId()+"-"+orderItem.getQuantity()+"-"+orderItem.getPrice()+"-"+orderItem.getOrderType());
+                System.out.println("------------SUMMARY OF BUY & SELL ORDER-------------");
+                System.out.println("BUY ORDER : " +stock.getTraderId()+"|"+stock.getQuantity()+"|"+stock.getPrice()+"|"+stock.getOrderType());
+                System.out.println("SELL ORDER : " +orderItem.getTraderId()+"|"+orderItem.getQuantity()+"|"+orderItem.getPrice()+"|"+orderItem.getOrderType());
 
                 // check for only buy orders
                 if (orderItem.getPrice() == stock.getPrice()

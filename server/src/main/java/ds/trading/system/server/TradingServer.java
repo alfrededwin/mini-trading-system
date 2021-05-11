@@ -2,6 +2,9 @@ package ds.trading.system.server;
 
 
 import ds.trading.systems.syncronization.lock.DistributedLock;
+import ds.trading.systems.syncronization.lock.tx.DistributedTx;
+import ds.trading.systems.syncronization.lock.tx.DistributedTxCoordinator;
+import ds.trading.systems.syncronization.lock.tx.DistributedTxParticipant;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.apache.zookeeper.KeeperException;
@@ -18,9 +21,19 @@ public class TradingServer {
     //    private Map<String, Stock> orderBook = new HashMap();
     private ArrayList<StockDetails> orderBook = new ArrayList<>();
 
+    DistributedTx transaction;
+    OrderServiceImpl StockorderService;
+
     public TradingServer(String host, int port) throws InterruptedException, IOException, KeeperException {
         this.serverPort = port;
         leaderLock = new DistributedLock("Trading Server Test Cluster", buildServerData(host, port));
+
+        StockorderService = new OrderServiceImpl(this);
+        transaction = new DistributedTxParticipant(StockorderService);
+    }
+
+    public DistributedTx getTransaction() {
+        return transaction;
     }
 
     public boolean isLeader() {
@@ -39,7 +52,7 @@ public class TradingServer {
     public void startServer() throws IOException, InterruptedException, KeeperException {
         Server server = ServerBuilder
                 .forPort(serverPort)
-                .addService(new OrderServiceImpl(this))
+                .addService(StockorderService)
                 .build();
         server.start();
         System.out.println("Trading Server Started and ready to accept requests on port " + serverPort);
@@ -68,6 +81,7 @@ public class TradingServer {
         System.out.println("----------------------------------------------------");
         System.out.println("Sell Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
+
         boolean transactionPerformed = false;
 
         for (StockDetails orderItem: this.orderBook) {
@@ -99,6 +113,7 @@ public class TradingServer {
         System.out.println("----------------------------------------------------");
         System.out.println("Buy Order Requested, Checking Order Book for a match");
         orderBook.add(stock);
+
 
         boolean transactionPerformed = false;
 
@@ -148,8 +163,15 @@ public class TradingServer {
         return result;
     }
 
+    private void beTheLeader() {
+        System.out.println("I got the leader lock, Now acting as Primary");
+        isLeader.set(true);
+        transaction = new DistributedTxCoordinator(StockorderService);
+    }
+
     public static void main(String[] args) throws Exception {
         DistributedLock.setZooKeeperURL("localhost:2181");
+        DistributedTx.setZooKeeperURL("localhost:2181");
 
         if (args.length != 1) {
             System.out.println("Usage executable-name <port>");
@@ -179,8 +201,11 @@ public class TradingServer {
                     Thread.sleep(10000);
                     leader = leaderLock.tryAcquireLock();
                 }
-                System.out.println("I got the leader lock. Now acting as primary");
-                isLeader.set(true);
+//                System.out.println("I got the leader lock. Now acting as primary");
+//                isLeader.set(true);
+
+                beTheLeader();
+
                 currentLeaderData = null;
             } catch (Exception e) {
             }

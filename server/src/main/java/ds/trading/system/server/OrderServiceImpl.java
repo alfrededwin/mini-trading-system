@@ -3,21 +3,41 @@ package ds.trading.system.server;
 import ds.trading.system.grpc.generated.StockOrderRequest;
 import ds.trading.system.grpc.generated.StockOrderResponse;
 import ds.trading.system.grpc.generated.StockOrderServiceGrpc;
+import ds.trading.systems.syncronization.lock.tx.DistributedTx;
+import ds.trading.systems.syncronization.lock.tx.DistributedTxCoordinator;
+import ds.trading.systems.syncronization.lock.tx.DistributedTxListener;
+import ds.trading.systems.syncronization.lock.tx.DistributedTxParticipant;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import org.apache.zookeeper.KeeperException;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
-public class OrderServiceImpl extends StockOrderServiceGrpc.StockOrderServiceImplBase {
+public class OrderServiceImpl extends StockOrderServiceGrpc.StockOrderServiceImplBase implements DistributedTxListener {
 
     private ManagedChannel channel = null;
     StockOrderServiceGrpc.StockOrderServiceBlockingStub clientStub = null;
     private TradingServer server;
 
+    private StockDetails holdStockDetails;
+    private boolean transactionState = false;
+
+
     public OrderServiceImpl(TradingServer server) {
         this.server = server;
+    }
+
+    private void startDistributedTx(String traderId, double price, int quantity, String orderType) {
+        try {
+            server.getTransaction().start(traderId, String.valueOf(UUID.randomUUID()));
+            holdStockDetails = new StockDetails(traderId,quantity,price,orderType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -34,9 +54,19 @@ public class OrderServiceImpl extends StockOrderServiceGrpc.StockOrderServiceImp
             // Act as primary
             try {
                 System.out.println("Updating order book as Primary");
-                updateOrderBook(traderId, price, quantity, orderType);
+//                updateOrderBook(traderId, price, quantity, orderType);
+                startDistributedTx(traderId, price, quantity, orderType);
                 updateSecondaryServers(traderId, price, quantity, orderType);
-                status = true;
+                System.out.println("Going To Start Performing");
+
+                if (quantity >0 || price > 0.0) {
+                    ((DistributedTxCoordinator) server.getTransaction()).perform();
+
+                } else {
+                    ((DistributedTxCoordinator) server.getTransaction()).sendGlobalAbort();
+                }
+
+//                status = true;
             } catch (Exception e) {
                 System.out.println("Error while updating the order book" + e.getMessage());
                 e.printStackTrace();
@@ -45,25 +75,41 @@ public class OrderServiceImpl extends StockOrderServiceGrpc.StockOrderServiceImp
             // Act As Secondary
             if (request.getIsSentByPrimary()) {
                 System.out.println("Updating order book on secondary, on Primary's command");
-                updateOrderBook(traderId, price, quantity, orderType);
+//                updateOrderBook(traderId, price, quantity, orderType);
+                startDistributedTx(traderId, price, quantity, orderType);
+                if (quantity >0 || price > 0.0) {
+                    ((DistributedTxParticipant) server.getTransaction()).voteCommit();
+
+                } else {
+                    ((DistributedTxParticipant) server.getTransaction()).voteAbort();
+                }
+
             } else {
                 StockOrderResponse response = callPrimary(traderId, price, quantity, orderType);
                 if (response.getOrderStatus()) {
-                    status = true;
+                    transactionState = true;
                 }
             }
         }
         StockOrderResponse response = StockOrderResponse.newBuilder()
-                .setOrderStatus(status)
+                .setOrderStatus(transactionState)
                 .build();
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
-    private void updateOrderBook(String traderId, double price, int quantity, String orderType) {
-        server.setOrderBook(traderId, price, quantity, orderType);
-        System.out.println("Trader ID: " + traderId + " placed a " + orderType + " order.");
+    private void updateOrderBook() {
+        if (holdStockDetails != null) {
+            String traderId = holdStockDetails.getTraderId();
+            double price = holdStockDetails.getPrice();
+            int quantity = holdStockDetails.getQuantity();
+            String orderType = holdStockDetails.getOrderType();
+            server.setOrderBook(traderId, price, quantity, orderType);
+            System.out.println("Trader ID: " + traderId + " placed a " + orderType + " order.");
+            holdStockDetails = null;
+        }
+
     }
 
     private StockOrderResponse callServer(String traderId, double price, int quantity, String orderType, boolean isSentByPrimary, String IPAddress, int port) {
@@ -105,4 +151,14 @@ public class OrderServiceImpl extends StockOrderServiceGrpc.StockOrderServiceImp
         }
     }
 
+    @Override
+    public void onGlobalCommit() {
+        updateOrderBook();
+    }
+
+    @Override
+    public void onGlobalAbort() {
+        holdStockDetails = null;
+        System.out.println("Transaction Aborted by the Coordinator");
+    }
 }
